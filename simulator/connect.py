@@ -21,8 +21,7 @@ async def connect():
 
     while True:
         result = await conn.receive()
-        if result[0].asdu_address == 30:
-            print(result)
+        print(result)
 
     await conn.async_close()
 

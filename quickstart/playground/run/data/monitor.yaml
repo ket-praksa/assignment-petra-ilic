@@ -1,0 +1,28 @@
+---
+log:
+    disable_existing_loggers: false
+    formatters:
+        default: {}
+    handlers:
+        console:
+            class : logging.StreamHandler
+            level   : INFO
+            stream  : ext://sys.stdout
+    root:
+        handlers:
+        - console
+        level: INFO
+    version: 1
+master:
+    address: tcp+sbs://127.0.0.1:23011
+    default_algorithm: BLESS_ALL
+    group_algorithms: {}
+server:
+    address: tcp+sbs://127.0.0.1:23010
+    default_rank: 1
+slave:
+    parents: []
+type: monitor
+ui:
+    address: http://127.0.0.1:23022
+...

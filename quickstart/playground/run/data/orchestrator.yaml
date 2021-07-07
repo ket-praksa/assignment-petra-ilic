@@ -1,0 +1,64 @@
+---
+type: orchestrator
+ui:
+    address: http://127.0.0.1:23021
+components:
+-   args:
+    - hat-monitor
+    - --conf
+    - ./data/monitor.yaml
+    delay: 0
+    name: monitor
+    revive: false
+    start_delay: 0.5
+    create_timeout: 2
+    sigint_timeout: 2
+    sigkill_timeout: 2
+-   args:
+    - hat-event
+    - --conf
+    - ./data/event.yaml
+    delay: 1
+    name: event
+    revive: false
+    start_delay: 0.5
+    create_timeout: 2
+    sigint_timeout: 2
+    sigkill_timeout: 2
+-   args:
+    - hat-gateway
+    - --conf
+    - ./data/gateway.yaml
+    delay: 2
+    name: gateway
+    revive: false
+    start_delay: 0.5
+    create_timeout: 2
+    sigint_timeout: 2
+    sigkill_timeout: 2
+-   args:
+    - hat-gui
+    - --conf
+    - ./data/gui.yaml
+    delay: 3
+    name: gui
+    revive: false
+    start_delay: 0.5
+    create_timeout: 2
+    sigint_timeout: 2
+    sigkill_timeout: 2
+log:
+    disable_existing_loggers: false
+    formatters:
+        default: {}
+    handlers:
+        console:
+            class : logging.StreamHandler
+            level   : INFO
+            stream  : ext://sys.stdout
+    root:
+        handlers: []
+            # - console
+        level: INFO
+    version: 1
+...

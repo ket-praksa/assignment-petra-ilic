@@ -1,0 +1,43 @@
+---
+type: gui
+log:
+    disable_existing_loggers: false
+    formatters:
+        default: {}
+    handlers:
+        console:
+            class : logging.StreamHandler
+            level   : INFO
+            stream  : ext://sys.stdout
+    root:
+        handlers:
+            - console
+        level: INFO
+    version: 1
+monitor:
+    component_address: null
+    group: gui
+    monitor_address: tcp+sbs://127.0.0.1:23010
+    name: gui
+event_server_group: event
+adapters:
+  - module: project.adapters.example
+    name: adapter
+views:
+  - name: login
+    view_path: ../../build/views/login
+    conf_path: null
+  - name: main
+    view_path: ../../build/views/main
+    conf_path: null
+address: http://0.0.0.0:23023
+initial_view: login
+users:
+  - name: user
+    password:
+        hash: 9607d977ebab9f9d54054e49b40841ef1df106e1720e680c5ab252c84c7bcf59
+        salt: db2b4ec247be05b461e94a02487c73e9
+    roles:
+        - user
+    view: main
+...

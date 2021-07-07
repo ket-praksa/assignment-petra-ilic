@@ -1,0 +1,27 @@
+---
+devices:
+    - module: project.devices.example
+      name: device
+event_server_group: event
+gateway_name: gateway
+log:
+    disable_existing_loggers: false
+    formatters:
+        default: {}
+    handlers:
+        console:
+            class : logging.StreamHandler
+            level   : INFO
+            stream  : ext://sys.stdout
+    root:
+        handlers:
+            - console
+        level: INFO
+    version: 1
+monitor:
+    component_address: null
+    group: gateway
+    monitor_address: tcp+sbs://127.0.0.1:23010
+    name: gateway
+type: gateway
+...
