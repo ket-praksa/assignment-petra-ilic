@@ -1,8 +1,27 @@
-html, body, input, textarea, select, button {
+html,
+body,
+input,
+textarea,
+select,
+button {
     font-family: 'Roboto';
 }
 
-html, body {
+html,
+body {
     font-size: 10pt;
     margin: 0px;
+    height: 100%;
+}
+
+div.main {
+    height: 100vh;
+    width: 100vw;
+}
+
+svg.svg {
+    display: block;
+    margin: auto;
+    height: 100vh;
+    width: 100vw;
 }
