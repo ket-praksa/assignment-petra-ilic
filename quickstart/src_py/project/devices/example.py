@@ -33,7 +33,7 @@ class Device(hat.gateway.common.Device):
 
         while True:
             result = await conn.receive()
-            val = result[0].value
+            val = round(result[0].value.value, 2)
             # print(val)
             asdu = str(result[0].asdu_address)
             io = str(result[0].io_address)

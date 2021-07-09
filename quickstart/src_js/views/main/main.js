@@ -3,6 +3,7 @@ import 'main/index.scss';
 
 export function vt() {
     var list = [];
+    //list.push('div')
     list.push('div.main');
     //list = loop(list, 0, 10, 2)
     //list = loop(list, 10, 20, 5)
@@ -2153,15 +2154,64 @@ export function vt() {
         ]
     ])
 
+    var table_div = ['div.table_div'];
+    table_div = add_table(table_div, 0, 7, 2, "BUS", "Active power [MW]", "Reactive power [MVar]");
+    table_div = add_table(table_div, 10, 14, 5, "LINE", "p0", "p1", "p2", "p3", "p4");
+    table_div = add_table(table_div, 30, 38, 1, "SWITCH", "p0", "FLIP");
+    table_div = add_table(table_div, 20, 21, 5, "TRANSFORMER", "p0", "p1", "p2", "p3", "p4");
+
+    list.push(table_div);
+
     return list;
 }
 
+function toggle() {
+    // hat.conn.send nesto
+}
+
+
+function add_table(table_div, asdu1, asdu2, io, ...args) {
+    var table = ['table'];
+    var header = ['tr'];
+    for (let i = 0; i < args.length; i++) {
+        header.push(['th', args[i]]);
+    }
+    table.push(header);
+    table = loop(table, asdu1, asdu2, io);
+
+    table_div.push(table);
+    return table_div
+}
+
 function loop(list, asdu1, asdu2, io) {
+
     for (let i = asdu1; i < asdu2; i++) {
+        var row = ['tr', ['td', `${i.toString()}`]]
         for (let j = 0; j < io; j++) {
-            list.push(['div', `ASDU=${i.toString()}, IO=${j.toString()}, 
-                        VALUE=${r.get('remote', 'adapter', 'el' + i + "-" + j)}`]);
+            var val = `${r.get('remote', 'adapter', 'el' + i + "-" + j)}`;
+            if (val == 'undefined') {
+                val = "-";
+            }
+            row.push(['td', val]);
+
+            if (asdu1 >= 30 && asdu2 <= 39) {
+
+                row.push(['td', [
+                    ['label.switch', ['input', {
+                            'attrs': {
+                                'type': 'checkbox',
+                                'id': 'check',
+                                'onchange': 'toggle()',
+                            }
+                        }],
+                        ['span.slider round']
+                    ]
+                ]]);
+            }
+            //list.push(['div', `ASDU=${i.toString()}, IO=${j.toString()}, 
+            //           VALUE=${r.get('remote', 'adapter', 'el' + i + "-" + j)}`]);
         }
+        list.push(row);
     }
     return list;
 }
