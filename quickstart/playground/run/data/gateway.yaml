@@ -1,6 +1,6 @@
 ---
 devices:
-    - module: project.devices.example
+    - module: project.devices.iec104_device
       name: device
 event_server_group: event
 gateway_name: gateway

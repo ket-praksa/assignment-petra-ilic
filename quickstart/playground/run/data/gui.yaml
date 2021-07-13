@@ -21,7 +21,7 @@ monitor:
     name: gui
 event_server_group: event
 adapters:
-  - module: project.adapters.example
+  - module: project.adapters.gui_adapter
     name: adapter
 views:
   - name: login

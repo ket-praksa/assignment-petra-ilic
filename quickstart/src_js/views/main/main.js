@@ -2,13 +2,9 @@ import 'main/index.scss';
 
 
 export function vt() {
-    var list = [];
-    //list.push('div')
+    let list = [];
+
     list.push('div.main');
-    //list = loop(list, 0, 10, 2)
-    //list = loop(list, 10, 20, 5)
-    //list = loop(list, 20, 21, 5)
-    //list = loop(list, 30, 40, 1)
 
     list.push(['svg.svg', {
             'attrs': {
@@ -2154,8 +2150,8 @@ export function vt() {
         ]
     ])
 
-    var table_div = ['div.table_div'];
-    table_div = add_table(table_div, 0, 7, 2, "BUS", "Active power [MW]", "Reactive power [MVar]");
+    let table_div = ['div.table_div'];
+    table_div = add_table(table_div, 0, 7, 2, "BUS", "Active power [MW]", "Reactive power [Mlet]");
     table_div = add_table(table_div, 10, 14, 5, "LINE", "p0", "p1", "p2", "p3", "p4");
     table_div = add_table(table_div, 30, 38, 1, "SWITCH", "p0", "FLIP");
     table_div = add_table(table_div, 20, 21, 5, "TRANSFORMER", "p0", "p1", "p2", "p3", "p4");
@@ -2165,14 +2161,23 @@ export function vt() {
     return list;
 }
 
-function toggle() {
-    // hat.conn.send nesto
+function toggle(asdu, io) {
+    let val = document.getElementById('el' + asdu + '-' + io).textContent;
+    let new_val;
+
+    new_val = 1-val
+
+    hat.conn.send('adapter', {
+        'value': new_val,
+        'asdu': asdu,
+        'io': 0,
+    })
+
 }
 
-
 function add_table(table_div, asdu1, asdu2, io, ...args) {
-    var table = ['table'];
-    var header = ['tr'];
+    let table = ['table'];
+    let header = ['tr'];
     for (let i = 0; i < args.length; i++) {
         header.push(['th', args[i]]);
     }
@@ -2186,28 +2191,41 @@ function add_table(table_div, asdu1, asdu2, io, ...args) {
 function loop(list, asdu1, asdu2, io) {
 
     for (let i = asdu1; i < asdu2; i++) {
-        var row = ['tr', ['td', `${i.toString()}`]]
+        let row = ['tr', ['td', `${i.toString()}`]]
         for (let j = 0; j < io; j++) {
-            var val = `${r.get('remote', 'adapter', 'el' + i + "-" + j)}`;
-            if (val == 'undefined') {
-                val = "-";
-            }
-            row.push(['td', val]);
+            let id = 'el' + i + "-" + j;
+            let val = `${r.get('remote', 'adapter', id)}`;
+
+            row.push(['td', {
+                'attrs': {
+                    'id': id
+                }
+            }, val]);
 
             if (asdu1 >= 30 && asdu2 <= 39) {
+                let checked = false;
+
+                if (val == '1') {
+                    checked = true;
+                }
 
                 row.push(['td', [
-                    ['label.switch', ['input', {
+                    ['label.switch',
+                        ['input', {
+                            on: {
+                                change: () => toggle(i, j)
+                            },
                             'attrs': {
                                 'type': 'checkbox',
-                                'id': 'check',
-                                'onchange': 'toggle()',
+                                'checked': checked
                             }
                         }],
                         ['span.slider round']
                     ]
                 ]]);
+
             }
+
             //list.push(['div', `ASDU=${i.toString()}, IO=${j.toString()}, 
             //           VALUE=${r.get('remote', 'adapter', 'el' + i + "-" + j)}`]);
         }

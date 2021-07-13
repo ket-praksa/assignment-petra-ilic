@@ -11,7 +11,7 @@ _source_id = 0
 async def create(conf, engine):
     module = Module()
 
-    global _source_id
+    global _source_id 
     module._source = hat.event.server.common.Source(
         type=hat.event.server.common.SourceType.MODULE, name=__name__, id=_source_id
     )
@@ -19,13 +19,8 @@ async def create(conf, engine):
 
     module._subscription = hat.event.server.common.Subscription(
         [
-            (
-                "gateway",
-                "?",
-                "example",
-                "?",
-                "*",
-            )
+            ("gateway","?","device", "?","*",),
+            ("device", "system"),
         ]
     )
     module._async_group = hat.aio.Group()
@@ -58,14 +53,37 @@ class Session(hat.event.server.common.ModuleSession):
         return self._async_group
 
     async def process(self, changes):
-        return [
+        process = []
+
+        for event in changes:
+            e_type = event.event_type
+
+
+            if e_type == ("device", "system"):
+                event_type = ("gateway", "gateway", "device", "device", "system")
+            else:
+                event_type = ("gui", e_type[-2], e_type[-1])
+            process.append(
+                self._engine.create_process_event(
+                    self._source,
+                    hat.event.server.common.RegisterEvent(
+                        event_type=event_type,
+                        source_timestamp=None,
+                        payload=event.payload,
+                    ),
+                )
+            )
+
+        return process
+
+        """return [
             self._engine.create_process_event(
                 self._source,
                 hat.event.server.common.RegisterEvent(
-                    event_type=(event.event_type[-2], event.event_type[-1]),
+                    event_type=("gui", event.event_type[-2], event.event_type[-1]),
                     source_timestamp=None,
                     payload=event.payload,
                 ),
             )
             for event in changes
-        ]
+        ]"""

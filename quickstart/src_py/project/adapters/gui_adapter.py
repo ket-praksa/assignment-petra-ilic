@@ -2,14 +2,16 @@ import hat.aio
 import hat.event.common
 import hat.gui.common
 import hat.util
-
+import hat.juggler
+import numbers
+import math
 
 json_schema_id = None
 json_schema_repo = None
 
 
 async def create_subscription(conf):
-    return hat.event.common.Subscription([("*",)])
+    return hat.event.common.Subscription([("gateway", "gateway", "device", "device", "device","gui", "*",)])
 
 
 async def create_adapter(conf, event_client):
@@ -44,11 +46,15 @@ class Adapter(hat.gui.common.Adapter):
         while True:
             events = await self._event_client.receive()
             for e in events:
-                ev_type = e.event_type[-2:]
-                if e.event_type == (ev_type[0], ev_type[1]):
-                    self._state = dict(self._state)
-                    self._state["el" + "-".join(ev_type)] = e.payload.data
-                    self._state_change_cb_registry.notify()
+                data = e.payload.data.get("value")
+                if math.isnan(data):
+                    data = "0"
+                self._state = dict(self._state)
+                self._state["el" + "-".join(e.event_type[-2:])] = data
+                
+                self._state_change_cb_registry.notify()
+
+            #print(self._state)
 
 
 class Session(hat.gui.common.AdapterSession):
@@ -63,8 +69,26 @@ class Session(hat.gui.common.AdapterSession):
         return self._async_group
 
     async def _run(self):
-        self._on_state_change()
-        with self._adapter.subscribe_to_state_change(self._on_state_change):
+        try:
+            self._on_state_change()
+            with self._adapter.subscribe_to_state_change(self._on_state_change):
+                while True:
+                    received = await self._juggler_client.receive()
+
+                    self._adapter._event_client.register((
+                            [
+                                hat.event.common.RegisterEvent(
+                                    event_type=("device", "system"),
+                                    source_timestamp=None,
+                                    payload=hat.event.common.EventPayload(
+                                        type=hat.event.common.EventPayloadType.JSON,
+                                        data=received,
+                                    ),
+                                )
+                            ]
+                        )
+                    )
+        except:
             await self.wait_closing()
 
     def _on_state_change(self):

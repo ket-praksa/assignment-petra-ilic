@@ -21,7 +21,7 @@ log:
     version: 1
 module_engine:
     modules:
-      - module: project.modules.example
+      - module: project.modules.module
       - module: project.modules.enable_all
 monitor:
     component_address: tcp+sbs://127.0.0.1:23012
