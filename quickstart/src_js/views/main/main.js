@@ -110,6 +110,7 @@ function svg() {
                     'fill': 'none',
                     'stroke': '#000000',
                     'stroke-miterlimit': '10',
+                    'id': "sw0",
                     'pointer-events': 'none'
                 }
             }],
@@ -535,6 +536,7 @@ function svg() {
                     'fill': 'none',
                     'stroke': '#000000',
                     'stroke-miterlimit': '10',
+                    'id': "sw1",
                     'pointer-events': 'none'
                 }
             }],
@@ -1257,6 +1259,7 @@ function svg() {
                     'fill': 'none',
                     'stroke': '#000000',
                     'stroke-miterlimit': '10',
+                    'id': "sw2",
                     'pointer-events': 'none'
                 }
             }],
@@ -1329,6 +1332,7 @@ function svg() {
                     'fill': 'none',
                     'stroke': '#000000',
                     'stroke-miterlimit': '10',
+                    'id': 'sw3',
                     'pointer-events': 'none'
                 }
             }],
@@ -1401,6 +1405,7 @@ function svg() {
                     'fill': 'none',
                     'stroke': '#000000',
                     'stroke-miterlimit': '10',
+                    'id': "sw4",
                     'pointer-events': 'none'
                 }
             }],
@@ -1473,6 +1478,7 @@ function svg() {
                     'fill': 'none',
                     'stroke': '#000000',
                     'stroke-miterlimit': '10',
+                    'id': 'sw5',
                     'pointer-events': 'none'
                 }
             }],
@@ -1545,6 +1551,7 @@ function svg() {
                     'fill': 'none',
                     'stroke': '#000000',
                     'stroke-miterlimit': '10',
+                    'id': 'sw7',
                     'pointer-events': 'none'
                 }
             }],
@@ -1617,6 +1624,7 @@ function svg() {
                     'fill': 'none',
                     'stroke': '#000000',
                     'stroke-miterlimit': '10',
+                    'id': "sw6",
                     'pointer-events': 'none'
                 }
             }],
@@ -2177,41 +2185,24 @@ function get_values(list, asdu1, asdu2, io) {
 
     for (let i = asdu1; i < asdu2; i++) {
         let ct = i;
-        if (asdu1 !=  0) {
+        if (asdu1 != 0)
             ct = i % asdu1
-        }
+
         let row = ['tr', ['td', `${(ct).toString()}`]]
         for (let j = 0; j < io; j++) {
+
             let id = 'el' + i + "-" + j;
             let val = `${r.get('remote', 'adapter', id)}`;
 
-            row.push(['td', {
-                'attrs': {
-                    'id': id
-                }
-            }, val]);
+            row.push(['td', {'attrs': {'id': id}}, val]);
 
             if (asdu1 >= 30 && asdu2 <= 39) {
                 let checked = false;
-
-                if (val == '1') {
+                if (val == '1')
                     checked = true;
-                }
 
-                row.push(['td', [
-                    ['label.switch',
-                        ['input', {
-                            on: {
-                                change: () => toggle(i, j)
-                            },
-                            'attrs': {
-                                'type': 'checkbox',
-                                'checked': checked
-                            }
-                        }],
-                        ['span.slider round']
-                    ]
-                ]]);
+                update_switch(ct, checked)
+                row = toggle_button(row, checked)
             }
         }
         list.push(row);
@@ -2222,12 +2213,40 @@ function get_values(list, asdu1, asdu2, io) {
 function toggle(asdu, io) {
     let val = document.getElementById('el' + asdu + '-' + io).textContent;
     let new_val;
-
     new_val = 1 - val
-
     hat.conn.send('adapter', {
         'value': new_val,
         'asdu': asdu,
         'io': 0,
     })
+}
+
+function update_switch(ct, checked) {
+    let el = document.getElementById("sw" + ct);
+    if (el != null) {
+        let value = el.getAttribute("d");
+        value = value.split(" ");
+        value[5] = value[2];
+        if (!checked)
+            value[5] -= 10;
+        el.setAttribute('d', value.join(" "))
+    }
+}
+
+function toggle_button(row, checked) {
+    row.push(['td', [
+        ['label.switch',
+            ['input', {
+                on: {
+                    change: () => toggle(i, j)
+                },
+                'attrs': {
+                    'type': 'checkbox',
+                    'checked': checked
+                }
+            }],
+            ['span.slider round']
+        ]
+    ]]);
+    return row;
 }
