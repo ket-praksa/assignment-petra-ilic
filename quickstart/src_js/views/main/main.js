@@ -2202,7 +2202,7 @@ function get_values(list, asdu1, asdu2, io) {
                     checked = true;
 
                 update_switch(ct, checked)
-                row = toggle_button(row, checked)
+                row = toggle_button(row, checked, i, j)
             }
         }
         list.push(row);
@@ -2233,12 +2233,12 @@ function update_switch(ct, checked) {
     }
 }
 
-function toggle_button(row, checked) {
+function toggle_button(row, checked, asdu, io) {
     row.push(['td', [
         ['label.switch',
             ['input', {
                 on: {
-                    change: () => toggle(i, j)
+                    change: () => toggle(asdu, io)
                 },
                 'attrs': {
                     'type': 'checkbox',
