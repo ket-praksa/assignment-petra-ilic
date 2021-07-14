@@ -46,13 +46,15 @@ class Adapter(hat.gui.common.Adapter):
         while True:
             events = await self._event_client.receive()
             for e in events:
-                data = e.payload.data.get("value")
-                if math.isnan(data):
-                    data = "0"
+                data = e.payload.data
+
+                if math.isnan(data): data = "0"
+
                 self._state = dict(self._state)
-                self._state["el" + "-".join(e.event_type[-2:])] = data
-                
-                self._state_change_cb_registry.notify()
+                key = "el" + "-".join(e.event_type[-2:])
+                if not data == self._state.get(key, None):          
+                    self._state["el" + "-".join(e.event_type[-2:])] = data
+                    self._state_change_cb_registry.notify()
 
             #print(self._state)
 

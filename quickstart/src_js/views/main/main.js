@@ -2,11 +2,20 @@ import 'main/index.scss';
 
 
 export function vt() {
-    let list = [];
+    return ['div.main', svg(), tables()];
+}
 
-    list.push('div.main');
+function tables() {
+    let table_div = ['div.table_div'];
+    table_div = table(table_div, 0, 7, 2, "BUS", "Active power [MW]", "Reactive power [Mlet]");
+    table_div = table(table_div, 10, 14, 5, "LINE", "p0", "p1", "p2", "p3", "p4");
+    table_div = table(table_div, 30, 38, 1, "SWITCH", "p0", "FLIP");
+    table_div = table(table_div, 20, 21, 5, "TRANSFORMER", "p0", "p1", "p2", "p3", "p4");
+    return table_div
+}
 
-    list.push(['svg.svg', {
+function svg() {
+    return ['svg.svg', {
             'attrs': {
                 'xmlns': 'http://www.w3.org/2000/svg',
                 'version': '1.1',
@@ -2148,50 +2157,30 @@ export function vt() {
                 }, 'Viewer does not support full SVG 1.1']
             ]
         ]
-    ])
-
-    let table_div = ['div.table_div'];
-    table_div = add_table(table_div, 0, 7, 2, "BUS", "Active power [MW]", "Reactive power [Mlet]");
-    table_div = add_table(table_div, 10, 14, 5, "LINE", "p0", "p1", "p2", "p3", "p4");
-    table_div = add_table(table_div, 30, 38, 1, "SWITCH", "p0", "FLIP");
-    table_div = add_table(table_div, 20, 21, 5, "TRANSFORMER", "p0", "p1", "p2", "p3", "p4");
-
-    list.push(table_div);
-
-    return list;
+    ]
 }
 
-function toggle(asdu, io) {
-    let val = document.getElementById('el' + asdu + '-' + io).textContent;
-    let new_val;
-
-    new_val = 1-val
-
-    hat.conn.send('adapter', {
-        'value': new_val,
-        'asdu': asdu,
-        'io': 0,
-    })
-
-}
-
-function add_table(table_div, asdu1, asdu2, io, ...args) {
+function table(table_div, asdu1, asdu2, io, ...args) {
     let table = ['table'];
     let header = ['tr'];
     for (let i = 0; i < args.length; i++) {
         header.push(['th', args[i]]);
     }
     table.push(header);
-    table = loop(table, asdu1, asdu2, io);
+    table = get_values(table, asdu1, asdu2, io);
 
     table_div.push(table);
     return table_div
 }
 
-function loop(list, asdu1, asdu2, io) {
+function get_values(list, asdu1, asdu2, io) {
 
     for (let i = asdu1; i < asdu2; i++) {
-        let row = ['tr', ['td', `${i.toString()}`]]
+        let ct = i;
+        if (asdu1 !=  0) {
+            ct = i % asdu1
+        }
+        let row = ['tr', ['td', `${(ct).toString()}`]]
         for (let j = 0; j < io; j++) {
             let id = 'el' + i + "-" + j;
             let val = `${r.get('remote', 'adapter', id)}`;
@@ -2223,13 +2212,22 @@ function loop(list, asdu1, asdu2, io) {
                         ['span.slider round']
                     ]
                 ]]);
-
             }
-
-            //list.push(['div', `ASDU=${i.toString()}, IO=${j.toString()}, 
-            //           VALUE=${r.get('remote', 'adapter', 'el' + i + "-" + j)}`]);
         }
         list.push(row);
     }
     return list;
+}
+
+function toggle(asdu, io) {
+    let val = document.getElementById('el' + asdu + '-' + io).textContent;
+    let new_val;
+
+    new_val = 1 - val
+
+    hat.conn.send('adapter', {
+        'value': new_val,
+        'asdu': asdu,
+        'io': 0,
+    })
 }

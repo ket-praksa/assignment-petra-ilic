@@ -47,8 +47,6 @@ class Device(hat.gateway.common.Device):
         val = round(result[0].value.value, 2)
         asdu = str(result[0].asdu_address)
         io = str(result[0].io_address)
-        values = {"value": val}
-
 
         self._event_client.register(
             [
@@ -56,7 +54,7 @@ class Device(hat.gateway.common.Device):
                     event_type=(*self._event_type_prefix, "device", "gui", asdu, io),
                     source_timestamp=None,
                     payload=hat.event.common.EventPayload(
-                        type=hat.event.common.EventPayloadType.JSON, data=values
+                        type=hat.event.common.EventPayloadType.JSON, data=val
                     ),
                 )
             ]

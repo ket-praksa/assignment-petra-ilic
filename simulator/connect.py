@@ -10,7 +10,7 @@ async def connect():
 
     command = iec104.Command(
         action=iec104.Action.EXECUTE,
-        value=iec104.common.SingleValue.ON,
+        value=iec104.common.SingleValue.OFF,
         asdu_address=30,
         io_address=0,
         time=None,
