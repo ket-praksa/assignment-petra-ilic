@@ -1,7 +1,8 @@
 ---
 backend_engine:
     backend:
-        module: hat.event.server.backends.dummy
+        module: project.modules.backend
+        path: ../../resources/events.db
     server_id: 1
 communication:
     address: tcp+sbs://127.0.0.1:23012

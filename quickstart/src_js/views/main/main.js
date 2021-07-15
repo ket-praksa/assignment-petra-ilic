@@ -7,10 +7,18 @@ export function vt() {
 
 function tables() {
     let table_div = ['div.table_div'];
-    table_div = table(table_div, 0, 7, 2, "BUS", "Active power [MW]", "Reactive power [Mlet]");
-    table_div = table(table_div, 10, 14, 5, "LINE", "p0", "p1", "p2", "p3", "p4");
-    table_div = table(table_div, 30, 38, 1, "SWITCH", "p0", "FLIP");
-    table_div = table(table_div, 20, 21, 5, "TRANSFORMER", "p0", "p1", "p2", "p3", "p4");
+    table_div = table(table_div, 0, 7, 2, "SABIRNICA", "Aktivna snaga [MW]", "Jalova snaga [MVar]");
+    table_div = table(table_div, 10, 14, 5, "VOD", "Aktivna snaga na početku voda [MW]", 
+                                                    "Jalova snaga na početku voda [MVar]", 
+                                                    "Aktivna snaga na kraju voda [MW]", 
+                                                    "Jalova snaga na kraju voda [MVar]", 
+                                                    "Opterećenje [%]");
+    table_div = table(table_div, 30, 38, 1, "PREKIDAČ", "stanje", "PROMIJENI");
+    table_div = table(table_div, 20, 21, 5, "TRANSFORMATOR", "Aktivna snaga na strani s višim naponom [MW]", 
+                                                           "Jalova snaga na strani s višim naponom [MVar]", 
+                                                           "Aktivna snaga na strani s nižim naponom [MW]", 
+                                                           "Jalova snaga na strani s nižim naponom [MVar]", 
+                                                           "Opterećenje [%]");
     return table_div
 }
 
@@ -1593,7 +1601,7 @@ function svg() {
                                     'attrs': {
                                         'style': 'display: inline-block; font-size: 12px; font-family: Helvetica; color: #006600; line-height: 1.2; pointer-events: none; white-space: normal; word-wrap: normal; '
                                     }
-                                }, '6']
+                                }, '7']
                             ]
                         ]
                     ],
@@ -1606,7 +1614,7 @@ function svg() {
                             'font-size': '12px',
                             'text-anchor': 'middle'
                         }
-                    }, '6']
+                    }, '7']
                 ]
             ],
             ['path', {
@@ -1766,7 +1774,7 @@ function svg() {
                                     'attrs': {
                                         'style': 'display: inline-block; font-size: 12px; font-family: Helvetica; color: #000000; line-height: 1.2; pointer-events: none; white-space: normal; word-wrap: normal; '
                                     }
-                                }, 'Bus']
+                                }, '']
                             ]
                         ]
                     ],
@@ -1811,7 +1819,7 @@ function svg() {
                                     'attrs': {
                                         'style': 'display: inline-block; font-size: 12px; font-family: Helvetica; color: #000000; line-height: 1.2; pointer-events: none; white-space: normal; word-wrap: normal; '
                                     }
-                                }, 'Line']
+                                }, '']
                             ]
                         ]
                     ],
@@ -1856,7 +1864,7 @@ function svg() {
                                     'attrs': {
                                         'style': 'display: inline-block; font-size: 12px; font-family: Helvetica; color: #000000; line-height: 1.2; pointer-events: none; white-space: normal; word-wrap: normal; '
                                     }
-                                }, 'Switch']
+                                }, '']
                             ]
                         ]
                     ],
@@ -1901,7 +1909,7 @@ function svg() {
                                     'attrs': {
                                         'style': 'display: inline-block; font-size: 12px; font-family: Helvetica; color: #000000; line-height: 1.2; pointer-events: none; white-space: normal; word-wrap: normal; '
                                     }
-                                }, 'Trafo']
+                                }, '']
                             ]
                         ]
                     ],
@@ -1946,7 +1954,7 @@ function svg() {
                                     'attrs': {
                                         'style': 'display: inline-block; font-size: 12px; font-family: Helvetica; color: #000000; line-height: 1.2; pointer-events: none; white-space: normal; word-wrap: normal; '
                                     }
-                                }, 'Shunt']
+                                }, '']
                             ]
                         ]
                     ],
@@ -1991,7 +1999,7 @@ function svg() {
                                     'attrs': {
                                         'style': 'display: inline-block; font-size: 12px; font-family: Helvetica; color: #000000; line-height: 1.2; pointer-events: none; white-space: normal; word-wrap: normal; '
                                     }
-                                }, 'Ground']
+                                }, '']
                             ]
                         ]
                     ],
@@ -2036,7 +2044,7 @@ function svg() {
                                     'attrs': {
                                         'style': 'display: inline-block; font-size: 12px; font-family: Helvetica; color: #000000; line-height: 1.2; pointer-events: none; white-space: normal; word-wrap: normal; '
                                     }
-                                }, 'Generator']
+                                }, '']
                             ]
                         ]
                     ],
@@ -2081,7 +2089,7 @@ function svg() {
                                     'attrs': {
                                         'style': 'display: inline-block; font-size: 12px; font-family: Helvetica; color: #000000; line-height: 1.2; pointer-events: none; white-space: normal; word-wrap: normal; '
                                     }
-                                }, 'Load']
+                                }, '']
                             ]
                         ]
                     ],
@@ -2126,7 +2134,7 @@ function svg() {
                                     'attrs': {
                                         'style': 'display: inline-block; font-size: 12px; font-family: Helvetica; color: #000000; line-height: 1.2; pointer-events: none; white-space: normal; word-wrap: normal; '
                                     }
-                                }, 'External grid']
+                                }, '']
                             ]
                         ]
                     ],
@@ -2194,7 +2202,11 @@ function get_values(list, asdu1, asdu2, io) {
             let id = 'el' + i + "-" + j;
             let val = `${r.get('remote', 'adapter', id)}`;
 
-            row.push(['td', {'attrs': {'id': id}}, val]);
+            row.push(['td', {
+                'attrs': {
+                    'id': id
+                }
+            }, val]);
 
             if (asdu1 >= 30 && asdu2 <= 39) {
                 let checked = false;
@@ -2203,6 +2215,8 @@ function get_values(list, asdu1, asdu2, io) {
 
                 update_switch(ct, checked)
                 row = toggle_button(row, checked, i, j)
+
+
             }
         }
         list.push(row);
@@ -2233,6 +2247,8 @@ function update_switch(ct, checked) {
     }
 }
 
+
+
 function toggle_button(row, checked, asdu, io) {
     row.push(['td', [
         ['label.switch',
@@ -2250,3 +2266,4 @@ function toggle_button(row, checked, asdu, io) {
     ]]);
     return row;
 }
+

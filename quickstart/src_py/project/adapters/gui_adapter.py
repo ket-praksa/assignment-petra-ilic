@@ -52,9 +52,9 @@ class Adapter(hat.gui.common.Adapter):
 
                 self._state = dict(self._state)
                 key = "el" + "-".join(e.event_type[-2:])
-                if not data == self._state.get(key, None):          
-                    self._state["el" + "-".join(e.event_type[-2:])] = data
-                    self._state_change_cb_registry.notify()
+        
+                self._state["el" + "-".join(e.event_type[-2:])] = data
+                self._state_change_cb_registry.notify()
 
             #print(self._state)
 

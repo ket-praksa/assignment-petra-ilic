@@ -15,28 +15,37 @@ body {
 }
 
 div.main {
-    height: 100vh;
-    width: 100vw;
     display: flex;
+    flex-direction: column;
 }
 
 svg.svg {
     align-self: center;
-    width: 70%;
-    height: 70%;
-    margin-left: 20px;
+    height: 100%;
+    width: 60%;
+    margin: 20px;
 }
 
 div.table_div {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
+    height: 50%;
+    justify-content: center;
+    margin: 20px 0px 0px 0px;
+    width: 100vw;
+    justify-self: center;
 }
 
 table {
     font-family: arial, sans-serif;
     border-collapse: collapse;
-    width: 100%;
-    margin: 20px;
+    height: 1%;
+    margin: 20px 20px 0px 0px;
+    width: 1%;
+}
+
+div.table_div table:last-child {
+    margin-right: 0px;
 }
 
 td,
@@ -44,6 +53,11 @@ th {
     border: 1px solid #dddddd;
     text-align: left;
     padding: 8px;
+}
+
+th {
+    background-color: #2196F3;
+    color: white
 }
 
 td.button {
