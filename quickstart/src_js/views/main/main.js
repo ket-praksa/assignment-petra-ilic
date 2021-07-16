@@ -8,17 +8,17 @@ export function vt() {
 function tables() {
     let table_div = ['div.table_div'];
     table_div = table(table_div, 0, 7, 2, "SABIRNICA", "Aktivna snaga [MW]", "Jalova snaga [MVar]");
-    table_div = table(table_div, 10, 14, 5, "VOD", "Aktivna snaga na početku voda [MW]", 
-                                                    "Jalova snaga na početku voda [MVar]", 
-                                                    "Aktivna snaga na kraju voda [MW]", 
-                                                    "Jalova snaga na kraju voda [MVar]", 
-                                                    "Opterećenje [%]");
+    table_div = table(table_div, 10, 14, 5, "VOD", "Aktivna snaga na početku voda [MW]",
+        "Jalova snaga na početku voda [MVar]",
+        "Aktivna snaga na kraju voda [MW]",
+        "Jalova snaga na kraju voda [MVar]",
+        "Opterećenje [%]");
     table_div = table(table_div, 30, 38, 1, "PREKIDAČ", "stanje", "PROMIJENI");
-    table_div = table(table_div, 20, 21, 5, "TRANSFORMATOR", "Aktivna snaga na strani s višim naponom [MW]", 
-                                                           "Jalova snaga na strani s višim naponom [MVar]", 
-                                                           "Aktivna snaga na strani s nižim naponom [MW]", 
-                                                           "Jalova snaga na strani s nižim naponom [MVar]", 
-                                                           "Opterećenje [%]");
+    table_div = table(table_div, 20, 21, 5, "TRANSFORMATOR", "Aktivna snaga na strani s višim naponom [MW]",
+        "Jalova snaga na strani s višim naponom [MVar]",
+        "Aktivna snaga na strani s nižim naponom [MW]",
+        "Jalova snaga na strani s nižim naponom [MVar]",
+        "Opterećenje [%]");
     return table_div
 }
 
@@ -2197,12 +2197,16 @@ function get_values(list, asdu1, asdu2, io) {
             ct = i % asdu1
 
         let row = ['tr', ['td', `${(ct).toString()}`]]
+
         for (let j = 0; j < io; j++) {
 
             let id = 'el' + i + "-" + j;
             let val = `${r.get('remote', 'adapter', id)}`;
 
             row.push(['td', {
+                on: {
+                    click: () => graph(i, j)
+                },
                 'attrs': {
                     'id': id
                 }
@@ -2267,3 +2271,10 @@ function toggle_button(row, checked, asdu, io) {
     return row;
 }
 
+function graph(asdu, io) {
+    alert('aaaaa')
+    hat.conn.send('db_adapter', {
+        'asdu': asdu.toString(),
+        'io': io.toString(),
+    })
+}

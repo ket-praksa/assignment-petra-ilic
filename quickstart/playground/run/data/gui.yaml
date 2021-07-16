@@ -23,6 +23,8 @@ event_server_group: event
 adapters:
   - module: project.adapters.gui_adapter
     name: adapter
+  - module: project.adapters.db_adapter
+    name: db_adapter
 views:
   - name: login
     view_path: ../../build/views/login

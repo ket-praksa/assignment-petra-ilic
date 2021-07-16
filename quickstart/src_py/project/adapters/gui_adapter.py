@@ -46,6 +46,7 @@ class Adapter(hat.gui.common.Adapter):
         while True:
             events = await self._event_client.receive()
             for e in events:
+
                 data = e.payload.data
 
                 if math.isnan(data): data = "0"
