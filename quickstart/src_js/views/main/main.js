@@ -1,8 +1,61 @@
 import 'main/index.scss';
-
+import * as plotly from 'plotly.js-dist/plotly.js';
 
 export function vt() {
-    return ['div.main', svg(), tables()];
+    window.onclick = function (event) {
+        let modal = document.getElementById("graph_modal");
+        if (modal != null && event.target == modal) {
+            modal.style.display = "none";
+        }
+    }
+
+    return ['div.main', svg(), tables(), show_graph()];
+}
+
+export function plot(data, layout, config) {
+    data = data.split(",")
+
+    let pair;
+    let tmstps = [];
+    let vals = [];
+    for (let i = 0; i < data.length; i++) {
+        pair = data[i].split(";");
+        tmstps.push(pair[0]);
+        vals.push(pair[1]);
+    }
+
+    // Layout i Config  propisani od strane plotlya, (mogu se koristiti i defaultni).
+    var format_data = [{
+        x: tmstps,
+        y: vals,
+        type: 'scatter'
+    }];
+
+    return ['div.plot', {
+        'attrs': {
+            'id': 'modal_content'
+        },
+        plotData: format_data,
+        hook: {
+            insert: vnode => plotly.newPlot(vnode.elm, format_data, layout, config),
+            update: (oldVnode, vnode) => {
+                if (u.equals(oldVnode.data.plotData, vnode.data.plotData)) return;
+                plotly.react(vnode.elm, format_data, layout, config);
+            },
+            destroy: vnode => plotly.purge(vnode.elm)
+        }
+    }];
+}
+
+function show_graph() {
+
+    return ['div.modal', {
+            'attrs': {
+                'id': 'graph_modal'
+            }
+        },
+        [plot(`${r.get('remote', 'db_adapter', 'pairs')}`)]
+    ]
 }
 
 function tables() {
@@ -2203,12 +2256,14 @@ function get_values(list, asdu1, asdu2, io) {
             let id = 'el' + i + "-" + j;
             let val = `${r.get('remote', 'adapter', id)}`;
 
-            row.push(['td', {
+            row.push(['td.value', {
                 on: {
                     click: () => graph(i, j)
                 },
                 'attrs': {
-                    'id': id
+                    'id': id,
+                    'href': "#modal_content",
+                    'title': "Show graph"
                 }
             }, val]);
 
@@ -2272,9 +2327,14 @@ function toggle_button(row, checked, asdu, io) {
 }
 
 function graph(asdu, io) {
-    alert('aaaaa')
     hat.conn.send('db_adapter', {
         'asdu': asdu.toString(),
         'io': io.toString(),
     })
+
+    let modal = document.getElementById("graph_modal");
+    if (modal != null) {
+        modal.style.display = "block";
+    }
+
 }

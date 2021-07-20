@@ -66,6 +66,7 @@ class Session(hat.gui.common.AdapterSession):
         self._juggler_client = juggler_client
         self._async_group = group
         self._async_group.spawn(self._run)
+    
 
     @property
     def async_group(self):
