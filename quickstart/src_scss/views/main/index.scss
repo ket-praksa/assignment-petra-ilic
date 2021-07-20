@@ -11,29 +11,44 @@ html,
 body {
     font-size: 10pt;
     margin: 0px;
-    height: 100%;
+    height: 100vh;
+    width: 100vw;
 }
 
 div.main {
     display: flex;
     flex-direction: column;
+    background-color: slategray;
+}
+
+path, ellipse, rect {
+    stroke: slategray;
 }
 
 svg.svg {
     align-self: center;
     height: 100%;
-    width: 60%;
+    width: 50%;
     margin: 20px;
+    padding: 10px;
+    box-shadow: 0 3px 6px rgb(0 0 0 / 16%), 0 3px 6px rgb(0 0 0 / 23%), 0 0 5px #aaa inset;
+    border-radius: 13px;
 }
 
 div.table_div {
     display: flex;
     flex-direction: row;
-    height: 50%;
     justify-content: center;
-    margin: 20px 0px 0px 0px;
-    width: 100vw;
     justify-self: center;
+    padding: 0px 20px 20px 20px;
+}
+
+tr {
+    background-color: white;
+}
+
+tr:nth-child(odd){
+    background-color: rgb(222, 228, 233);
 }
 
 table {
@@ -41,7 +56,11 @@ table {
     border-collapse: collapse;
     height: 1%;
     margin: 20px 20px 0px 0px;
-    width: 1%;
+    width: 100%;
+    box-shadow: 3px 6px rgb(0 0 0 / 16%), 0 3px 6px rgb(0 0 0 / 23%), 0 0 5px #aaa inset;
+    border-radius: 13px;
+    font-size: 15px;
+    overflow: hidden;
 }
 
 div.table_div table:last-child {
@@ -50,9 +69,14 @@ div.table_div table:last-child {
 
 td,
 th {
-    border: 1px solid #dddddd;
     text-align: left;
     padding: 8px;
+    border-bottom: 1px solid DarkOrange;
+    padding: 10px;
+}
+
+tr:last-child > td {
+    border-bottom: none;
 }
 
 td.value:hover {
@@ -65,7 +89,7 @@ td.value:hover {
 }
 
 th {
-    background-color: #2196F3;
+    background-color: coral;
     color: white
 }
 
@@ -96,7 +120,7 @@ td.button {
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: #ccc;
+    background-color: rgb(255, 212, 196);
     -webkit-transition: .4s;
     transition: .4s;
 }
@@ -114,11 +138,11 @@ td.button {
 }
 
 input:checked+.slider {
-    background-color: #2196F3;
+    background-color: coral;
 }
 
 input:focus+.slider {
-    box-shadow: 0 0 1px #2196F3;
+    box-shadow: 0 0 1px coral;
 }
 
 input:checked+.slider:before {
