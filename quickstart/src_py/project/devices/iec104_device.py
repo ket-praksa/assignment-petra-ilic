@@ -1,11 +1,8 @@
-import asyncio
 import hat.aio
 import hat.event.common
 import hat.gateway.common
 from hat.drivers import iec104
-from hat.aio import run_asyncio
 import time
-
 
 json_schema_id = None
 json_schema_repo = None
@@ -14,6 +11,17 @@ addr = iec104.Address("127.0.0.1", 19999)
 
 
 async def create(conf, event_client, event_type_prefix):
+    """
+    Creates a new device instance and connects it to the server.
+
+    Args:
+        conf (json.Data): device configuration
+        event_client (DeviceEventClient): device's event client interface
+        event_type_prefix (list): event type prefix
+
+    Returns:
+        Device: new device instance
+    """
     device = Device()
 
     device._async_group = hat.aio.Group()
@@ -29,6 +37,12 @@ async def create(conf, event_client, event_type_prefix):
 class Device(hat.gateway.common.Device):
     @property
     def async_group(self):
+        """
+        Creates a group controlling resource's lifetime.
+
+        Returns:
+            Group: controlling resource's lifetime
+        """
         return self._async_group
 
     async def _main_loop(self):
@@ -37,13 +51,13 @@ class Device(hat.gateway.common.Device):
         data = await self._conn.interrogate(65535)
         time.sleep(3)
         for event in data:
-            self.register_event([event])
+            self._register_event([event])
 
         while True:
             result = await self._conn.receive()
-            self.register_event(result)
+            self._register_event(result)
     
-    def register_event(self, result):
+    def _register_event(self, result):
         val = round(result[0].value.value, 2)
         asdu = str(result[0].asdu_address)
         io = str(result[0].io_address)
@@ -61,7 +75,6 @@ class Device(hat.gateway.common.Device):
         )
 
     async def _event_loop(self):
-        #_conn = await iec104.connect(addr)
 
         while True:
             data = await self._event_client.receive()

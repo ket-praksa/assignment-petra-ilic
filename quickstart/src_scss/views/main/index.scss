@@ -19,6 +19,8 @@ div.main {
     display: flex;
     flex-direction: column;
     background-color: slategray;
+    overflow: overlay;
+    align-items: center;
 }
 
 path, ellipse, rect {
@@ -41,7 +43,9 @@ div.table_div {
     justify-content: center;
     justify-self: center;
     padding: 0px 20px 20px 20px;
+    width: min-content;
 }
+
 
 tr {
     background-color: white;
@@ -61,6 +65,7 @@ table {
     border-radius: 13px;
     font-size: 15px;
     overflow: hidden;
+
 }
 
 div.table_div table:last-child {

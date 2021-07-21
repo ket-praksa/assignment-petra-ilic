@@ -3,15 +3,20 @@ import hat.event.common
 import hat.gui.common
 import hat.util
 import hat.juggler
-import numbers
-import math
-import time
 
 json_schema_id = None
 json_schema_repo = None
 
 
 async def create_subscription(conf):
+    """
+
+    Args:
+        conf ():
+
+    Returns:
+
+    """
     return hat.event.common.Subscription([("db","*")])
 
 

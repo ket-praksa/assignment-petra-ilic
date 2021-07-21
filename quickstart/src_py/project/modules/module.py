@@ -9,6 +9,16 @@ _source_id = 0
 
 
 async def create(conf, engine):
+    """
+    Creates a new module instance.
+
+    Args:
+        conf (json.Data): module configuration
+        engine (ModuleEngine): module engine
+
+    Returns:
+        Module: new instance of Module
+    """
     module = Module()
 
     global _source_id 
@@ -32,13 +42,31 @@ async def create(conf, engine):
 class Module(hat.event.server.common.Module):
     @property
     def async_group(self):
+        """
+        Creates a group controlling resource's lifetime.
+
+        Returns:
+            Group: controlling resource's lifetime
+        """
         return self._async_group
 
     @property
     def subscription(self):
+        """
+        Creates a subscribed event types filter.
+
+        Returns:
+            Subscription: subscribed event types filter
+        """
         return self._subscription
 
     async def create_session(self):
+        """
+
+
+        Returns:
+
+        """
         return Session(self._engine, self._source, self._async_group.create_subgroup())
 
 
@@ -75,15 +103,3 @@ class Session(hat.event.server.common.ModuleSession):
             )
 
         return process
-
-        """return [
-            self._engine.create_process_event(
-                self._source,
-                hat.event.server.common.RegisterEvent(
-                    event_type=("gui", event.event_type[-2], event.event_type[-1]),
-                    source_timestamp=None,
-                    payload=event.payload,
-                ),
-            )
-            for event in changes
-        ]"""

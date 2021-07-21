@@ -24,11 +24,23 @@ export function plot(data, layout, config) {
         vals.push(pair[1]);
     }
 
+
+    let modal = document.getElementById("graph_modal");
+    let text = "";
+    if (modal != null) {
+        text = modal.title;
+    }
+
+    layout = {
+        autosize: true,
+        title: {text: text}
+    }
+
     // Layout i Config  propisani od strane plotlya, (mogu se koristiti i defaultni).
     var format_data = [{
         x: tmstps,
         y: vals,
-        type: 'scatter'
+        type: 'scatter',
     }];
 
     return ['div.plot', {
@@ -60,20 +72,21 @@ function show_graph() {
 
 function tables() {
     let table_div = ['div.table_div'];
-    table_div = table(table_div, 0, 7, 2, "SABIRNICA", "Aktivna snaga [MW]", "Jalova snaga [MVar]");
-    table_div = table(table_div, 10, 14, 5, "VOD", "Aktivna snaga na početku voda [MW]",
+    table_div = table(table_div, 0, 7, 2, "BUS", "Aktivna snaga [MW]", "Jalova snaga [MVar]");
+    table_div = table(table_div, 10, 14, 5, "LINE", "Aktivna snaga na početku voda [MW]",
         "Jalova snaga na početku voda [MVar]",
         "Aktivna snaga na kraju voda [MW]",
         "Jalova snaga na kraju voda [MVar]",
         "Opterećenje [%]");
-    table_div = table(table_div, 30, 38, 1, "PREKIDAČ", "stanje", "PROMIJENI");
-    table_div = table(table_div, 20, 21, 5, "TRANSFORMATOR", "Aktivna snaga na strani s višim naponom [MW]",
+    table_div = table(table_div, 30, 38, 1, "SWITCH", "Stanje", "");
+    table_div = table(table_div, 20, 21, 5, "TRAFO", "Aktivna snaga na strani s višim naponom [MW]",
         "Jalova snaga na strani s višim naponom [MVar]",
         "Aktivna snaga na strani s nižim naponom [MW]",
         "Jalova snaga na strani s nižim naponom [MVar]",
         "Opterećenje [%]");
     return table_div
 }
+
 
 function svg() {
     return ['svg.svg', {
@@ -2236,13 +2249,13 @@ function table(table_div, asdu1, asdu2, io, ...args) {
         header.push(['th', args[i]]);
     }
     table.push(header);
-    table = get_values(table, asdu1, asdu2, io);
+    table = get_values(table, asdu1, asdu2, io, args);
 
     table_div.push(table);
     return table_div
 }
 
-function get_values(list, asdu1, asdu2, io) {
+function get_values(list, asdu1, asdu2, io, args) {
 
     for (let i = asdu1; i < asdu2; i++) {
         let ct = i;
@@ -2258,12 +2271,12 @@ function get_values(list, asdu1, asdu2, io) {
 
             row.push(['td.value', {
                 on: {
-                    click: () => graph(i, j)
+                    click: () => graph(i, j, args[0], args[1+j], ct)
                 },
                 'attrs': {
                     'id': id,
                     'href': "#modal_content",
-                    'title': "Show graph"
+                    'title': "Show graph",
                 }
             }, val]);
 
@@ -2326,7 +2339,7 @@ function toggle_button(row, checked, asdu, io) {
     return row;
 }
 
-function graph(asdu, io) {
+function graph(asdu, io, element, name, ct) {
     hat.conn.send('db_adapter', {
         'asdu': asdu.toString(),
         'io': io.toString(),
@@ -2335,6 +2348,7 @@ function graph(asdu, io) {
     let modal = document.getElementById("graph_modal");
     if (modal != null) {
         modal.style.display = "block";
+        modal.title = element + " " + ct.toString() + ": " + name;   
     }
 
 }
