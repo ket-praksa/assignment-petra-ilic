@@ -13,7 +13,15 @@ json_schema_id = None
 json_schema_repo = None
 
 
-async def create(conf: json.Data):
+async def create(conf: json.Data) -> 'Backend':
+    """Creates a new backend instance which communicates with the database.
+
+    Args:
+        conf: backend configuration
+
+    Returns:
+        new Backend instance
+    """
     backend = Backend()
     backend._async_group = aio.Group()
     backend._db_con = init_db(conf)
@@ -40,15 +48,36 @@ class Backend(common.Backend):
 
     @property
     def async_group(self) -> aio.Group:
+        """Creates a group controlling resource's lifetime.
+
+        Returns:
+            controlling resource's lifetime
+        """
         return self._async_group
 
     async def get_last_event_id(self, server_id: int) -> common.EventId:
+        """Returns the last registered event id associated with server id.
+
+        Args:
+            server_id: server's id
+
+        Returns:
+            the last registered event id associated with server id
+        """
         result = common.EventId(server_id, 0)
         return await self._async_group.spawn(aio.call, lambda: result)
 
     async def register(
         self, events: typing.List[common.Event]
     ) -> typing.List[typing.Optional[common.Event]]:
+        """Stores data into database.
+
+        Args:
+            events: received events
+
+        Returns:
+            list of events
+        """
         cur = self._db_con.cursor()
         for e in events:
 
@@ -57,14 +86,14 @@ class Backend(common.Backend):
             io = e_type[-1]
 
             if asdu.isnumeric() and io.isnumeric() and e_type[0] == "gui":
-          
+
                 current = datetime.datetime.fromtimestamp(time.time())
                 last = Backend.last_entry.get(asdu, None)
-                if last is None: 
+                if last is None:
                     Backend.last_entry[asdu] = current
                 elif current - datetime.timedelta(minutes=1) < last:
                     pass
-                
+
                 Backend.last_entry[asdu] = current
                 val = e.payload.data
                 if math.isnan(val):
@@ -76,21 +105,30 @@ class Backend(common.Backend):
                 entries = cur.execute(f"SELECT Count(*) FROM {table};")
                 entries = entries.fetchone()[0]
                 if entries > 50000:
-                    cur.execute(f"DELETE FROM {table} ORDER BY time LIMIT 1000")
+                    cur.execute(
+                        f"DELETE FROM {table} ORDER BY time LIMIT 1000")
 
-                cur.execute(f"INSERT INTO {table} (asdu, io, val) VALUES ({asdu}, {io}, {val});")
+                cur.execute(
+                    f"INSERT INTO {table} (asdu, io, val) VALUES ({asdu}, {io}, {val});")
 
             self._db_con.commit()
         return await self._async_group.spawn(aio.call, lambda: events)
 
     async def query(self, data: common.QueryData) -> typing.List[common.Event]:
+        """Loads data from database based on query data.
+
+        Args:
+            data: query data
+
+        Returns:
+            list of events containing selected records
+        """
         result = []
         cur = self._db_con.cursor()
 
         event_type = data.event_types[0]
 
         if event_type[0] == "db":
-            #time_val = {}
             asdu = int(event_type[1])
             io = int(event_type[2])
             table = find_table(asdu)
@@ -98,11 +136,10 @@ class Backend(common.Backend):
 
             for val, time in cur.execute(f"SELECT val, time FROM {table} WHERE asdu={asdu} AND io={io} AND time >= datetime('now','-1 day');"):
                 time_val.append(f"{time};{val}")
-            
 
             event = hat.event.common.Event(
                 event_id=hat.event.common.EventId(server=1, instance=1),
-                timestamp=common.Timestamp(1,2),
+                timestamp=common.Timestamp(1, 2),
                 event_type=("db",),
                 source_timestamp=None,
                 payload=hat.event.common.EventPayload(
@@ -111,6 +148,7 @@ class Backend(common.Backend):
             )
             result.append(event)
         return await self._async_group.spawn(aio.call, lambda: result)
+
 
 def find_table(asdu):
     if asdu in range(0, 10):

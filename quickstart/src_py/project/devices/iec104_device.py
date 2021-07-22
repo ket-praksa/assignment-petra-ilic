@@ -1,8 +1,12 @@
 import hat.aio
 import hat.event.common
 import hat.gateway.common
+from hat import json
 from hat.drivers import iec104
+from hat.gateway.common import DeviceEventClient
+from hat.aio import Group
 import time
+import typing
 
 json_schema_id = None
 json_schema_repo = None
@@ -10,17 +14,19 @@ device_type = "device"
 addr = iec104.Address("127.0.0.1", 19999)
 
 
-async def create(conf, event_client, event_type_prefix):
+async def create(conf: json.Data, event_client: DeviceEventClient,
+                 event_type_prefix: typing.List[str]) -> 'Device':
     """
-    Creates a new device instance and connects it to the server.
+    Creates a new device instance and connects it to the server. Receives and registers
+    events from the server and sends commands back to the server.
 
     Args:
-        conf (json.Data): device configuration
-        event_client (DeviceEventClient): device's event client interface
-        event_type_prefix (list): event type prefix
+        conf: device configuration
+        event_client: device's event client interface
+        event_type_prefix: event type prefix
 
     Returns:
-        Device: new device instance
+        new Device instance
     """
     device = Device()
 
@@ -36,17 +42,17 @@ async def create(conf, event_client, event_type_prefix):
 
 class Device(hat.gateway.common.Device):
     @property
-    def async_group(self):
+    def async_group(self) -> Group:
         """
         Creates a group controlling resource's lifetime.
 
         Returns:
-            Group: controlling resource's lifetime
+            controlling resource's lifetime
         """
         return self._async_group
 
     async def _main_loop(self):
-    
+
         self._conn = await iec104.connect(addr)
         data = await self._conn.interrogate(65535)
         time.sleep(3)
@@ -56,7 +62,7 @@ class Device(hat.gateway.common.Device):
         while True:
             result = await self._conn.receive()
             self._register_event(result)
-    
+
     def _register_event(self, result):
         val = round(result[0].value.value, 2)
         asdu = str(result[0].asdu_address)
@@ -65,7 +71,8 @@ class Device(hat.gateway.common.Device):
         self._event_client.register(
             [
                 hat.event.common.RegisterEvent(
-                    event_type=(*self._event_type_prefix, "device", "gui", asdu, io),
+                    event_type=(*self._event_type_prefix,
+                                "device", "gui", asdu, io),
                     source_timestamp=None,
                     payload=hat.event.common.EventPayload(
                         type=hat.event.common.EventPayloadType.JSON, data=val
@@ -94,4 +101,3 @@ class Device(hat.gateway.common.Device):
             )
 
             res = await self._conn.send_command(command)
-
