@@ -132,5 +132,5 @@ dmypy.json
 mypy
 .idea
 .vscode
-quickstart/resources
+quickstart/resources/events.db
 quickstart/documentation/build
