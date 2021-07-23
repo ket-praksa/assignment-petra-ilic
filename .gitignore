@@ -132,3 +132,5 @@ dmypy.json
 mypy
 .idea
 .vscode
+quickstart/resources
+quickstart/documentation/build
