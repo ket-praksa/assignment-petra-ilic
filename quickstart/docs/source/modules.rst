@@ -1,10 +1,12 @@
-devices
+modules
 =======
 
 .. toctree::
    :maxdepth: 4
 
-   iec104_device
+   backend
+   enable_all
+   module
 
 adapters
 ========
@@ -15,13 +17,10 @@ adapters
    db_adapter
    gui_adapter
 
-modules
-========
+devices
+=======
 
 .. toctree::
    :maxdepth: 4
 
-   module
-   backend
-   enable_all
-
+   iec104_device

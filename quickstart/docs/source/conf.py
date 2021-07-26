@@ -13,6 +13,8 @@
 import os
 import sys
 sys.path.insert(0, os.path.abspath('../../src_py/project/devices/'))
+sys.path.insert(1, os.path.abspath('../../src_py/project/adapters/'))
+sys.path.insert(2, os.path.abspath('../../src_py/project/modules/'))
 
 
 # -- Project information -----------------------------------------------------
