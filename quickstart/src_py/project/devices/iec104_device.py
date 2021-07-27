@@ -54,7 +54,7 @@ class Device(hat.gateway.common.Device):
     async def _main_loop(self):
 
         self._conn = await iec104.connect(addr)
-        data = await self._conn.interrogate(65535)
+        data = await self._conn.interrogate(0xFFFF)
         time.sleep(3)
         for event in data:
             self._register_event([event])
@@ -69,26 +69,21 @@ class Device(hat.gateway.common.Device):
         io = str(result[0].io_address)
 
         self._event_client.register(
-            [
-                hat.event.common.RegisterEvent(
-                    event_type=(*self._event_type_prefix,
-                                "device", "gui", asdu, io),
-                    source_timestamp=None,
-                    payload=hat.event.common.EventPayload(
-                        type=hat.event.common.EventPayloadType.JSON, data=val
-                    ),
-                )
-            ]
-        )
+            [hat.event.common.RegisterEvent(
+                event_type=(*self._event_type_prefix, "device", "gui", asdu, io),
+                source_timestamp=None,
+                payload=hat.event.common.EventPayload(
+                type=hat.event.common.EventPayloadType.JSON, data=val),)])
 
     async def _event_loop(self):
 
         while True:
             data = await self._event_client.receive()
+            value = data[0].payload.data.get("value")
 
-            if data[0].payload.data.get("value") == 0:
+            if value == "OFF":
                 val = iec104.common.SingleValue.OFF
-            else:
+            elif value == "ON":
                 val = iec104.common.SingleValue.ON
 
             command = iec104.Command(
@@ -100,4 +95,4 @@ class Device(hat.gateway.common.Device):
                 qualifier=1,
             )
 
-            res = await self._conn.send_command(command)
+            await self._conn.send_command(command)

@@ -17,7 +17,7 @@ def task_docs():
     """Build docs"""
     def run(args):
         args = args or []
-        subprocess.run(['sphinx-build', 'docs/source', 'docs/build', *args])
+        subprocess.run(['sphinx-build', 'docs/source', 'build/docs', *args])
     return {'actions': [run], 'pos_arg': 'args'}
 
 

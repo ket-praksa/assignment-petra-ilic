@@ -60,26 +60,6 @@ class DBAdapter(hat.gui.common.Adapter):
         """
         return self._async_group
 
-    @property
-    def state(self) -> typing.Dict[str, float]:
-        """Returns adapter state.
-
-        Returns:
-            adapter state
-        """        
-        return self._state
-
-    def subscribe_to_state_change(self, callback: typing.Callable) -> RegisterCallbackHandle:
-        """Registers a callback.
-
-        Args:
-            callback: notified on state change
-
-        Returns:
-            register callback handle
-        """
-        return self._state_change_cb_registry.register(callback)
-
     async def create_session(self, juggler_client: AdapterSessionClient) -> 'Session':
         """Creates adapter's single client session.
 
@@ -111,28 +91,8 @@ class Session(hat.gui.common.AdapterSession):
 
         Returns:
             controlling resource's lifetime
-        """        
+        """
         return self._async_group
-
-    @property
-    def state(self) -> typing.Dict[str, float]:
-        """Returns session state.
-
-        Returns:
-            session state
-        """        
-        return self._state
-
-    def subscribe_to_state_change(self, callback: typing.Callable) -> RegisterCallbackHandle:
-        """Registers a callback.
-
-        Args:
-            callback: notified on state change
-
-        Returns:
-            register callback handle
-        """        
-        return self._state_change_cb_registry.register(callback)
 
     async def _run(self):
         try:
@@ -148,9 +108,6 @@ class Session(hat.gui.common.AdapterSession):
                 )
                 self._state = dict(self._state)
                 self._state["pairs"] = events[0].payload.data
-                self._on_state_change()
+                self._juggler_client.set_local_data(self._state)
         except:
             await self.wait_closing()
-
-    def _on_state_change(self):
-        self._juggler_client.set_local_data(self._state)

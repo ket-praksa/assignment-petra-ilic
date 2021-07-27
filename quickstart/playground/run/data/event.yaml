@@ -1,7 +1,7 @@
 ---
 backend_engine:
     backend:
-        module: project.modules.backend
+        module: project.backend.backend
         path: ../../resources/events.db
     server_id: 1
 communication:

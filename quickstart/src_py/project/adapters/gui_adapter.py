@@ -100,11 +100,9 @@ class Adapter(hat.gui.common.Adapter):
         while True:
             events = await self._event_client.receive()
             for e in events:
-
                 data = e.payload.data
 
-                if math.isnan(data):
-                    data = "0"
+                if math.isnan(data):data = 0
 
                 self._state = dict(self._state)
                 key = "el" + "-".join(e.event_type[-2:])

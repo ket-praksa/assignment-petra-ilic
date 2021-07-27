@@ -7,7 +7,6 @@ import math
 import hat
 import time
 import datetime
-from collections import defaultdict
 
 json_schema_id = None
 json_schema_repo = None
@@ -31,13 +30,7 @@ async def create(conf: json.Data) -> 'Backend':
 def init_db(conf):
     con = sqlite3.connect(conf["path"])
     cur = con.cursor()
-    cur.execute("""CREATE TABLE IF NOT EXISTS BUS(asdu integer, io integer, val float,
-                'time' DATETIME NOT NULL DEFAULT (datetime(CURRENT_TIMESTAMP, 'localtime')))""")
-    cur.execute("""CREATE TABLE IF NOT EXISTS LINE(asdu integer, io integer, val float,
-                'time' DATETIME NOT NULL DEFAULT (datetime(CURRENT_TIMESTAMP, 'localtime')))""")
-    cur.execute("""CREATE TABLE IF NOT EXISTS TRANSFORMER(asdu integer, io integer, val float,
-                'time' DATETIME NOT NULL DEFAULT (datetime(CURRENT_TIMESTAMP, 'localtime')))""")
-    cur.execute("""CREATE TABLE IF NOT EXISTS SWITCH(asdu integer, io integer, val float,
+    cur.execute("""CREATE TABLE IF NOT EXISTS ELEMENT(asdu integer, io integer, val float,
                 'time' DATETIME NOT NULL DEFAULT (datetime(CURRENT_TIMESTAMP, 'localtime')))""")
     con.commit()
     return con
@@ -91,7 +84,7 @@ class Backend(common.Backend):
                 last = Backend.last_entry.get(asdu, None)
                 if last is None:
                     Backend.last_entry[asdu] = current
-                elif current - datetime.timedelta(minutes=1) < last:
+                elif current - datetime.timedelta(minutes=2) < last:
                     pass
 
                 Backend.last_entry[asdu] = current
@@ -100,16 +93,13 @@ class Backend(common.Backend):
                     val = "0"
                 asdu = int(asdu)
                 io = int(io)
-                table = find_table(asdu)
 
-                entries = cur.execute(f"SELECT Count(*) FROM {table};")
+                entries = cur.execute("SELECT Count(*) FROM ELEMENT")
                 entries = entries.fetchone()[0]
                 if entries > 50000:
-                    cur.execute(
-                        f"DELETE FROM {table} ORDER BY time LIMIT 1000")
+                    cur.execute("DELETE FROM ELEMENT ORDER BY time LIMIT 1000")
 
-                cur.execute(
-                    f"INSERT INTO {table} (asdu, io, val) VALUES ({asdu}, {io}, {val});")
+                cur.execute("INSERT INTO ELEMENT (asdu, io, val) VALUES (?, ?, ?);", (asdu, io, val))
 
             self._db_con.commit()
         return await self._async_group.spawn(aio.call, lambda: events)
@@ -131,10 +121,9 @@ class Backend(common.Backend):
         if event_type[0] == "db":
             asdu = int(event_type[1])
             io = int(event_type[2])
-            table = find_table(asdu)
             time_val = []
 
-            for val, time in cur.execute(f"SELECT val, time FROM {table} WHERE asdu={asdu} AND io={io} AND time >= datetime('now','-1 day');"):
+            for val, time in cur.execute("SELECT val, time FROM ELEMENT WHERE asdu=? AND io=? AND time >= datetime('now','-1 day');", (asdu, io)):
                 time_val.append(f"{time};{val}")
 
             event = hat.event.common.Event(
@@ -148,15 +137,3 @@ class Backend(common.Backend):
             )
             result.append(event)
         return await self._async_group.spawn(aio.call, lambda: result)
-
-
-def find_table(asdu):
-    if asdu in range(0, 10):
-        table = "BUS"
-    elif asdu in range(10, 20):
-        table = "LINE"
-    elif asdu in range(30, 40):
-        table = "SWITCH"
-    else:
-        table = "TRANSFORMER"
-    return table

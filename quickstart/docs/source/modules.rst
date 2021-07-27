@@ -4,9 +4,8 @@ modules
 .. toctree::
    :maxdepth: 4
 
-   backend
-   enable_all
    module
+   enable_all
 
 adapters
 ========
@@ -24,3 +23,11 @@ devices
    :maxdepth: 4
 
    iec104_device
+
+backend
+=======
+
+.. toctree::
+   :maxdepth: 4
+
+   backend
