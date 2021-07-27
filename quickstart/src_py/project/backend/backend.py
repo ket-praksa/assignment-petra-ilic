@@ -8,6 +8,7 @@ import hat
 import time
 import datetime
 
+
 json_schema_id = None
 json_schema_repo = None
 
@@ -23,8 +24,13 @@ async def create(conf: json.Data) -> 'Backend':
     """
     backend = Backend()
     backend._async_group = aio.Group()
-    backend._db_con = init_db(conf)
+    backend._db_con = await _create_connection(conf, backend)
     return backend
+
+
+async def _create_connection(conf, backend):
+    backend.executor = aio.create_executor(1)
+    return await backend.executor(init_db, conf)
 
 
 def init_db(conf):
@@ -71,7 +77,6 @@ class Backend(common.Backend):
         Returns:
             list of events
         """
-        cur = self._db_con.cursor()
         for e in events:
 
             e_type = e.event_type
@@ -93,15 +98,9 @@ class Backend(common.Backend):
                     val = "0"
                 asdu = int(asdu)
                 io = int(io)
+                await self.executor(delete, self._db_con)
+                await self.executor(insert, self._db_con, asdu, io, val)
 
-                entries = cur.execute("SELECT Count(*) FROM ELEMENT")
-                entries = entries.fetchone()[0]
-                if entries > 50000:
-                    cur.execute("DELETE FROM ELEMENT ORDER BY time LIMIT 1000")
-
-                cur.execute("INSERT INTO ELEMENT (asdu, io, val) VALUES (?, ?, ?);", (asdu, io, val))
-
-            self._db_con.commit()
         return await self._async_group.spawn(aio.call, lambda: events)
 
     async def query(self, data: common.QueryData) -> typing.List[common.Event]:
@@ -114,17 +113,14 @@ class Backend(common.Backend):
             list of events containing selected records
         """
         result = []
-        cur = self._db_con.cursor()
 
         event_type = data.event_types[0]
 
         if event_type[0] == "db":
             asdu = int(event_type[1])
             io = int(event_type[2])
-            time_val = []
-
-            for val, time in cur.execute("SELECT val, time FROM ELEMENT WHERE asdu=? AND io=? AND time >= datetime('now','-1 day');", (asdu, io)):
-                time_val.append(f"{time};{val}")
+            
+            time_val = await self.executor(select, self._db_con, asdu, io)
 
             event = hat.event.common.Event(
                 event_id=hat.event.common.EventId(server=1, instance=1),
@@ -137,3 +133,26 @@ class Backend(common.Backend):
             )
             result.append(event)
         return await self._async_group.spawn(aio.call, lambda: result)
+
+
+def insert(db_con, asdu, io, val):
+    cur = db_con.cursor()
+    cur.execute("INSERT INTO ELEMENT (asdu, io, val) VALUES (?, ?, ?);", (asdu, io, val))
+    db_con.commit()
+
+
+def delete(db_con):
+    cur = db_con.cursor()
+    entries = cur.execute("SELECT Count(*) FROM ELEMENT")
+    entries = entries.fetchone()[0]
+    if entries > 50000:
+        cur.execute("DELETE FROM ELEMENT ORDER BY time LIMIT 1000")
+    db_con.commit()
+
+
+def select(db_con, asdu, io):
+    time_val = []
+    cur = db_con.cursor()
+    for val, time in cur.execute("SELECT val, time FROM ELEMENT WHERE asdu=? AND io=? AND time >= datetime('now','-1 day');", (asdu, io)):
+        time_val.append(f"{time};{val}")
+    return time_val
